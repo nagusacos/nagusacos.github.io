@@ -17,7 +17,7 @@ title: Goryou Nagusa
 description: 연기를 시작하는 블로그
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://nagusacos.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-repository: nagusacos/nagusacos.github.io # for github-metadata
+repository: https://github.com/nagusacos # for github-metadata
 
 permalink: pretty
 
@@ -111,7 +111,7 @@ heading_anchors: true
 # Aux links for the upper right navigation
 aux_links:
   "nagusacos on GitHub":
-    - "https://nagusacos.github.io"
+    - "https://github.com/nagusacos"
 
 # Makes Aux links open in a new tab. Default is false
 aux_links_new_tab: false
@@ -127,7 +127,7 @@ nav_sort: case_sensitive # Capital letters sorted before lowercase
 # External navigation links
 nav_external_links:
   - title: nagusacos on GitHub
-    url: https://nagusacos.github.io
+    url: https://github.com/nagusacos
 
 # Show navigation error report
 nav_error_report: true # default is false/nil.
@@ -152,7 +152,7 @@ last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https:/
 # Footer "Edit this page on GitHub" link text
 gh_edit_link: true # show or hide edit this page link
 gh_edit_link_text: "Edit this page on GitHub"
-gh_edit_repository: "https://nagusacos.github.io" # the github URL for your repo
+gh_edit_repository: "https://github.com/nagusacos" # the github URL for your repo
 gh_edit_branch: "main" # the branch that your docs is served from
 # gh_edit_source: docs # the source that your files originate from
 gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
