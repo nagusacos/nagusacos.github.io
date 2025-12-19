@@ -3,7 +3,7 @@
 </p>
 <br><br>
 <p align="center">
-    <h1 align="center">Goryou-Nagusa(cosplay) blog</h1>
+    <h1 align="center">NagusaCos</h1>
     <p align="center">personal study blog<br>for every student</p>
     <p align="center"><strong><a href="https://just-the-docs.com/">powed by [just-the-docs]</a></strong></p>
     <br><br><br>
