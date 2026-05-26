@@ -29,22 +29,29 @@ nav_order: 1
 <div class="series-hub-grid">
   {% for series in grouped_series %}
     <div class="series-hub-card">
-      <div class="series-hub-card-header">
-        <span class="series-hub-badge">시리즈</span>
-        <h3 class="series-hub-title">{{ series.name }}</h3>
-        <span class="series-hub-count">총 {{ series.size }}편의 글</span>
-      </div>
-      <div class="series-hub-card-body">
-        <ul class="series-hub-list">
-          {% assign sorted_items = series.items | sort: "series_order" %}
-          {% for item in sorted_items %}
-            <li class="series-hub-item">
-              <span class="series-hub-num">제 {{ item.series_order | default: forloop.index }}편.</span>
-              <a href="{{ item.url | relative_url }}" class="series-hub-item-link">{{ item.title }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-      </div>
+      <details class="series-hub-details">
+        <summary class="series-hub-card-header">
+          <div class="series-hub-header-content">
+            <div class="series-hub-header-info">
+              <span class="series-hub-badge">시리즈</span>
+              <h3 class="series-hub-title">{{ series.name }}</h3>
+              <span class="series-hub-count">총 {{ series.size }}편의 글</span>
+            </div>
+            <span class="series-hub-toggle-icon">▼</span>
+          </div>
+        </summary>
+        <div class="series-hub-card-body">
+          <ul class="series-hub-list">
+            {% assign sorted_items = series.items | sort: "series_order" %}
+            {% for item in sorted_items %}
+              <li class="series-hub-item">
+                <span class="series-hub-num">제 {{ item.series_order | default: forloop.index }}편.</span>
+                <a href="{{ item.url | relative_url }}" class="series-hub-item-link">{{ item.title }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </details>
     </div>
   {% endfor %}
 </div>

@@ -2,14 +2,14 @@
 layout: home
 title: Home
 nav_order: 1
-description: "nagusacos - 수학, 기계학습 이론 학습용 시리즈 연재 블로그"
+description: "nagusacos - 수학, 알고리즘, 기계학습 이론 학습용 시리즈 연재 블로그"
 permalink: /
 ---
 
 # nagusacos
 {: .fs-9 }
 
-수학, 기계학습 이론 학습용 시리즈 연재 블로그입니다.
+수학, 알고리즘, 기계학습 이론 학습용 시리즈를 연재하는 개인 블로그입니다.
 {: .fs-6 .fw-300 }
 
 [연재 시리즈 보러가기]({% link docs/series.md %}){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }

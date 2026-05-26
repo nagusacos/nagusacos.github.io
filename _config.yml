@@ -14,7 +14,7 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 title: nagusacos
-description: 수학, 기계학습 이론 학습용 시리즈 연재 블로그
+description: 수학, 알고리즘, 기계학습 이론 학습용 시리즈 연재 블로그
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://nagusacos.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 repository: nagusacos/nagusacos.github.io # for github-metadata

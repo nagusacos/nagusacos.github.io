@@ -651,37 +651,77 @@
     box-shadow: 0 8px 24px rgba(50, 88, 166, 0.08);
   }
 
-  .series-hub-card-header {
-    background-color: #fbfbfd;
-    padding: 1.5rem;
-    border-bottom: 1px solid #eeebee;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+  .series-hub-details {
+    summary.series-hub-card-header {
+      background-color: #fbfbfd;
+      padding: 1.5rem;
+      border-bottom: none;
+      display: flex;
+      cursor: pointer;
+      list-style: none;
+      outline: none;
+      user-select: none;
+      transition: background-color 0.2s ease;
 
-    .series-hub-badge {
-      display: inline-block;
-      align-self: flex-start;
-      padding: 0.15rem 0.5rem;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: #ffffff;
-      background-color: #3258A6;
-      border-radius: 4px;
-      line-height: 1.2;
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &:hover {
+        background-color: #f5f6fa;
+      }
     }
 
-    .series-hub-title {
-      margin: 0;
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: #27262b;
+    &[open] summary.series-hub-card-header {
+      border-bottom: 1px solid #eeebee;
     }
 
-    .series-hub-count {
-      font-size: 0.85rem;
+    .series-hub-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .series-hub-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+
+      .series-hub-badge {
+        display: inline-block;
+        align-self: flex-start;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #ffffff;
+        background-color: #3258A6;
+        border-radius: 4px;
+        line-height: 1.2;
+      }
+
+      .series-hub-title {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #27262b;
+      }
+
+      .series-hub-count {
+        font-size: 0.85rem;
+        color: #3258A6;
+        font-weight: 600;
+      }
+    }
+
+    .series-hub-toggle-icon {
+      font-size: 0.9rem;
       color: #3258A6;
-      font-weight: 600;
+      transition: transform 0.25s ease;
+    }
+
+    &[open] .series-hub-toggle-icon {
+      transform: rotate(180deg);
     }
   }
 
