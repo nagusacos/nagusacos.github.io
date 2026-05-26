@@ -7,6 +7,170 @@ layout: table_wrappers
 <html lang="{{ site.lang | default: 'en-US' }}">
 {% include head.html %}
 <body>
+  <div id="scroll-progress-bar" class="scroll-progress-bar"></div>
+  <style>
+    html, body {
+      overflow-x: hidden;
+    }
+
+    :root {
+      {% assign sidebar_width = site.right_sidebar_width | default: "260px" | append: "" %}
+      {% unless sidebar_width contains "px" or sidebar_width contains "rem" or sidebar_width contains "em" or sidebar_width contains "%" or sidebar_width contains "vw" %}
+        {% assign sidebar_width = sidebar_width | append: "px" %}
+      {% endunless %}
+      --right-sidebar-width: {{ sidebar_width }};
+
+      {% assign peek_width = site.right_sidebar_peek_width | default: "30px" | append: "" %}
+      {% unless peek_width contains "px" or peek_width contains "rem" or peek_width contains "em" or peek_width contains "%" or peek_width contains "vw" %}
+        {% assign peek_width = peek_width | append: "px" %}
+      {% endunless %}
+      --right-sidebar-peek-width: {{ peek_width }};
+    }
+
+    .text-content {
+      transition: margin-right 0.3s ease, padding-right 0.3s ease, width 0.3s ease, flex-basis 0.3s ease !important;
+    }
+
+    {% assign side_w_str = site.right_sidebar_width | default: "260px" | append: "" %}
+    {% assign collapse_w_str = site.right_sidebar_collapse_width | default: "500px" | append: "" %}
+
+    {% assign side_w_val = side_w_str | replace: "px", "" | replace: "rem", "" | replace: "em", "" | replace: "%", "" | plus: 0 %}
+    {% if side_w_str contains "rem" %}
+      {% assign side_w_px = side_w_val | times: 16 %}
+    {% else %}
+      {% assign side_w_px = side_w_val %}
+    {% endif %}
+
+    {% assign collapse_w_val = collapse_w_str | replace: "px", "" | replace: "rem", "" | replace: "em", "" | replace: "%", "" | plus: 0 %}
+    {% if collapse_w_str contains "rem" %}
+      {% assign collapse_w_px = collapse_w_val | times: 16 %}
+    {% else %}
+      {% assign collapse_w_px = collapse_w_val %}
+    {% endif %}
+
+    {% assign total_threshold_px = collapse_w_px | plus: side_w_px | plus: 88 %}
+
+    @media (max-width: {{ total_threshold_px }}px) {
+      /* 1. 우측 사이드바 토글 버튼 활성화 */
+      .right-sidebar-toggle {
+        display: flex !important;
+      }
+
+      /* 2. 행 컨테이너를 단일 열 Grid로 변경하여 겹침(Overlap) 및 높이 보존 지원 */
+      .content-row {
+        display: grid !important;
+        grid-template-columns: 100% !important;
+        position: relative !important;
+      }
+
+      /* 2-b. 본문 콘텐츠를 Grid 셀 (1, 1)에 배치 */
+      .text-content {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        width: 100% !important;
+        padding-right: var(--right-sidebar-peek-width) !important; /* 피킹 영역만큼 여백 확보 */
+        transition: none !important; /* 오버레이 방식이므로 가로 너비 트랜지션 불필요 */
+      }
+
+      /* 3. 우측 사이드바를 동일한 Grid 셀 (1, 1)에 겹쳐서 배치하고 우측 정렬 */
+      .right-reference-sidebar {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        justify-self: end !important;
+        position: relative !important;
+        right: auto !important;
+        top: auto !important;
+        width: calc(min(var(--right-sidebar-width, 260px), 80vw) + 5px) !important; /* 5px 만큼 왼쪽으로 늘림 */
+        padding-left: 5px !important; /* 왼쪽 5px 투명 영역 (안보이는 마진) */
+        flex-basis: auto !important;
+        max-width: calc(80vw + 5px) !important;
+        height: auto !important;
+        min-height: 0 !important;
+        z-index: 100 !important;
+        background-color: transparent !important; /* 배경 투명 */
+        border-left: none !important; /* 원래 있던 보더 제거 */
+        box-shadow: none !important; /* 원래 있던 그림자 제거 */
+        transform: translateX(calc(100% - var(--right-sidebar-peek-width))) !important; /* 기본 상태: 피킹 */
+        visibility: visible !important;
+        display: block !important;
+        overflow: hidden !important;
+        transition: transform 0.3s ease, max-height 0.3s ease !important;
+      }
+
+      /* 3-b. 이미지 컨테이너 크기를 고정하여 슬라이딩 리빌(revealing) 효과 구현 */
+      .right-reference-sidebar .sticky-wrapper {
+        width: min(var(--right-sidebar-width, 260px), 80vw) !important;
+        position: relative !important;
+        top: 0 !important;
+        height: auto !important;
+        background-color: #fff !important; /* 배경색을 이미지 랩퍼로 이동 */
+        border-left: 1px solid #eeebee !important; /* 보더를 이미지 랩퍼로 이동 */
+        box-shadow: -3px 0 12px rgba(0, 0, 0, 0.15) !important; /* 그림자를 이미지 랩퍼로 이동 */
+        transition: box-shadow 0.3s ease !important;
+      }
+
+      /* 4. 우측 체크박스 ON(닫힘) 상태 - 사이드바 우측 슬라이드 아웃 (피킹) */
+      #right-sidebar-checkbox:checked {
+        ~ .main .right-reference-sidebar {
+          transform: translateX(calc(100% - var(--right-sidebar-peek-width))) !important;
+          max-height: 100% !important; /* 본문 텍스트 높이로 캡핑하여 행 여백 최소화 */
+        }
+
+        ~ .main .right-reference-sidebar .sticky-wrapper {
+          box-shadow: -1px 0 4px rgba(0, 0, 0, 0.05) !important; /* 닫힘 상태 그림자로 변경 */
+        }
+
+        ~ .main .right-reference-sidebar .sticky-wrapper img {
+          object-position: left center !important; /* 비활성화 상태에서 이미지가 왼쪽 정렬되어 피킹 영역에 보이도록 함 */
+        }
+
+        ~ .right-sidebar-toggle {
+          right: calc(var(--right-sidebar-peek-width) + 1rem) !important; /* 피킹 영역 바로 왼쪽에 동적으로 위치 */
+        }
+
+        ~ .right-sidebar-toggle .icon-doc {
+          display: block !important;
+        }
+
+        ~ .right-sidebar-toggle .icon-close {
+          display: none !important;
+        }
+      }
+
+      /* 5. 우측 체크박스 OFF(열림) 상태 - 사이드바 원폭 슬라이딩 인 (본문 위로 오버랩) */
+      #right-sidebar-checkbox:not(:checked) {
+        ~ .main .right-reference-sidebar {
+          transform: translateX(0) !important;
+          max-height: 2000px !important; /* 이미지 전체 높이까지 확장 */
+        }
+
+        ~ .main .right-reference-sidebar .sticky-wrapper {
+          box-shadow: -3px 0 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        ~ .right-sidebar-toggle {
+          right: calc(min(var(--right-sidebar-width, 260px), 80vw) + 1rem) !important; /* 사이드바 바로 왼쪽에 플로팅 */
+        }
+
+        ~ .right-sidebar-toggle .icon-doc {
+          display: none !important;
+        }
+
+        ~ .right-sidebar-toggle .icon-close {
+          display: block !important;
+        }
+      }
+    }
+  </style>
+  <!--
+    [CSS Checkbox Hack - Sibling Anchors]
+    두 체크박스는 반드시 .side-bar 및 .main 보다 앞에,
+    body의 직계 자식(형제)으로 위치해야 ~ 선택자가 작동합니다.
+    절대로 .side-bar 내부에 넣지 마세요 (Sticky Trap / CSS Transform Trap).
+  -->
+  <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox" aria-hidden="true" checked>
+  <input type="checkbox" class="right-sidebar-checkbox" id="right-sidebar-checkbox" aria-hidden="true" checked>
+
   <a class="skip-to-main" href="#main-content">Skip to main content</a>
   {% include icons/icons.html %}
   {% if page.nav_enabled == true %}
@@ -43,5 +207,48 @@ layout: table_wrappers
   {% if site.mermaid %}
     {% include components/mermaid.html %}
   {% endif %}
+
+  <!--
+    [Toggle Labels - Fixed Outside Any Transformed Parent]
+    계획서 'CSS 트랩 방지' 규칙에 따라 두 토글 버튼 라벨은
+    반드시 </body> 직전, 최상위 레이어에 배치합니다.
+    position: fixed가 부모 transform에 의해 깨지는 현상을 원천 차단합니다.
+  -->
+
+  <!-- 좌측 사이드바 토글 버튼 -->
+  <label for="sidebar-checkbox" class="sidebar-toggle" aria-label="Toggle navigation sidebar">
+    <span class="toggle-icon">◀</span>
+  </label>
+
+  <!-- 우측 사이드바 토글 버튼 -->
+  <label for="right-sidebar-checkbox" class="right-sidebar-toggle" aria-label="Toggle reference sidebar">
+    <span class="toggle-icon">
+      <svg class="icon-doc" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <svg class="icon-close" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </span>
+  </label>
+
+  <script>
+    (function() {
+      var progressBar = document.getElementById('scroll-progress-bar');
+      if (progressBar) {
+        window.addEventListener('scroll', function() {
+          var winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+          var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+          progressBar.style.width = scrolled + '%';
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

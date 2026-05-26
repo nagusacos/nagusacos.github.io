@@ -33,14 +33,14 @@ $grey-dk-100: #5c5962 !default;
 $grey-dk-200: #44434d !default;
 $grey-dk-250: #302d36 !default;
 $grey-dk-300: #27262b !default;
-$grey-lt-000: #f5f6fa !default;
+$grey-lt-000: #F2F2F2 !default;
 $grey-lt-100: #eeebee !default;
-$grey-lt-200: #ecebed !default;
-$grey-lt-300: #e6e1e8 !default;
-$purple-000: #7253ed !default;
-$purple-100: #5e41d0 !default;
-$purple-200: #4e26af !default;
-$purple-300: #381885 !default;
+$grey-lt-200: #F2F2F2 !default;
+$grey-lt-300: #F2F2F2 !default;
+$purple-000: #3258A6 !default;
+$purple-100: #2E4186 !default;
+$purple-200: #0F1B40 !default;
+$purple-300: #0F1B40 !default;
 $blue-000: #2c84fa !default;
 $blue-100: #2869e6 !default;
 $blue-200: #264caf !default;
@@ -109,9 +109,9 @@ $transition-duration: 400ms;
 // Media queries in pixels
 
 $media-queries: (
-  xs: 20rem,
-  sm: 31.25rem,
-  md: $content-width,
-  lg: $content-width + $nav-width,
-  xl: 87.5rem,
+  xs: 0rem,
+  sm: 0rem,
+  md: 0rem,
+  lg: 0rem,
+  xl: 0rem,
 ) !default;

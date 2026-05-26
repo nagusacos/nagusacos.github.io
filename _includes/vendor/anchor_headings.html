@@ -69,6 +69,8 @@
       {% continue %}
     {% endif %}
 
+    {% assign html_id = nil %}
+
     {% assign nextChar = node | replace: '"', '' | strip | slice: 0, 1 %}
     {% assign headerLevel = nextChar | times: 1 %}
 

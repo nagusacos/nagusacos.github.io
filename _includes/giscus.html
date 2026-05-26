@@ -1,0 +1,27 @@
+{% if site.giscus and site.giscus.repo and page.comments != false and page.giscus != false %}
+  {% if site.giscus.repo_id != "R_kgD..." and site.giscus.category_id != "DIC_..." %}
+<div class="comments-section-wrapper" id="comments">
+  <div class="comments-header">
+    <h4>💬 댓글 및 피드백</h4>
+    <p>글에 대한 질문이나 의견이 있으시면 GitHub 계정으로 로그인하여 댓글을 남겨주세요.</p>
+  </div>
+  <script src="https://giscus.app/client.js"
+          data-repo="{{ site.giscus.repo }}"
+          data-repo-id="{{ site.giscus.repo_id }}"
+          data-category="{{ site.giscus.category }}"
+          data-category-id="{{ site.giscus.category_id }}"
+          data-mapping="{{ site.giscus.mapping | default: 'pathname' }}"
+          data-strict="{{ site.giscus.strict | default: '0' }}"
+          data-reactions-enabled="{{ site.giscus.reactions_enabled | default: '1' }}"
+          data-emit-metadata="{{ site.giscus.emit_metadata | default: '0' }}"
+          data-input-position="{{ site.giscus.input_position | default: 'bottom' }}"
+          data-theme="{{ site.giscus.theme | default: 'light' }}"
+          data-lang="{{ site.giscus.lang | default: site.lang | default: 'ko' }}"
+          crossorigin="anonymous"
+          async>
+  </script>
+</div>
+  {% else %}
+    <!-- Giscus comments disabled: Please replace placeholders (repo_id, category_id) in _config.yml with your actual repository values. -->
+  {% endif %}
+{% endif %}

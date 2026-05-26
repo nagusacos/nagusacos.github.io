@@ -1,0 +1,13 @@
+{% if site.newsletter and site.newsletter.endpoint and page.newsletter != false %}
+<div class="newsletter-section-card">
+  <div class="newsletter-icon">📬</div>
+  <div class="newsletter-content">
+    <h4 class="newsletter-title">새로운 글 구독하기</h4>
+    <p class="newsletter-desc">이 블로그의 유익한 소식과 새로운 연재글을 이메일로 받아보실 수 있습니다.</p>
+    <form action="{{ site.newsletter.endpoint }}" method="post" target="_blank" class="newsletter-form">
+      <input type="email" name="email" id="newsletter-email" class="newsletter-input" placeholder="이메일 주소를 입력하세요" required aria-label="이메일 주소" />
+      <button type="submit" class="btn btn-primary newsletter-btn">구독 신청</button>
+    </form>
+  </div>
+</div>
+{% endif %}

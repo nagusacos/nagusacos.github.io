@@ -1,0 +1,23 @@
+{% if include.id or include.url %}
+  {% if include.id %}
+    {% assign pixiv_id = include.id %}
+  {% elsif include.url %}
+    {% assign pixiv_id = include.url | split: "/artworks/" | last | split: "?" | first | split: "/" | last %}
+  {% endif %}
+
+  {% assign width = include.width | default: "600" %}
+  {% assign height = include.height | default: "600" %}
+
+  <div class="pixiv-embed-wrapper" style="margin: 2rem auto; text-align: center; max-width: {{ width }}px;">
+    <div class="pixiv-embed-container" style="width: 100%; aspect-ratio: {{ width }} / {{ height }}; margin-bottom: 0.5rem;">
+      <iframe src="https://embed.pixiv.net/oembed_iframe.php?type=illust&id={{ pixiv_id }}" 
+              style="border: 0; width: 100%; height: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);" 
+              allowfullscreen 
+              loading="lazy">
+      </iframe>
+    </div>
+    <a href="https://www.pixiv.net/artworks/{{ pixiv_id }}" target="_blank" rel="noopener noreferrer" class="pixiv-fallback-link" style="font-size: 0.85rem; color: #5c6b73; text-decoration: none;">
+      🎨 Pixiv에서 작품 보기 (ID: {{ pixiv_id }})
+    </a>
+  </div>
+{% endif %}

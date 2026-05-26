@@ -1,0 +1,25 @@
+{% if page.series %}
+  {% assign series_pages = site.pages | where: "series", page.series | sort: "series_order" %}
+  <div class="series-navigator-card">
+    <div class="series-header">
+      <span class="series-badge">시리즈 연재</span>
+      <h4 class="series-title">{{ page.series }}</h4>
+    </div>
+    <div class="series-body">
+      <p class="series-desc">이 글은 <strong>「{{ page.series }}」</strong> 연재 시리즈의 글입니다. 전체 목차를 확인해 보세요.</p>
+      <ol class="series-list">
+        {% for s_page in series_pages %}
+          <li class="series-item {% if s_page.url == page.url %}current-item{% endif %}">
+            <span class="series-num">제 {{ s_page.series_order | default: forloop.index }}편.</span>
+            {% if s_page.url == page.url %}
+              <strong class="series-item-title">{{ s_page.title }}</strong>
+              <span class="current-badge">현재 글</span>
+            {% else %}
+              <a href="{{ s_page.url | relative_url }}" class="series-item-link">{{ s_page.title }}</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </div>
+{% endif %}

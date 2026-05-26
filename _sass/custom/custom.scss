@@ -1,1 +1,763 @@
-// custom SCSS (or CSS) goes here
+/* ============================================================
+   파일 경로: _sass/custom/custom.scss
+
+   Stage 1 — 좌측 사이드바: 고정폭 오버레이(팝업) 토글 시스템
+   ============================================================
+   설계 원칙:
+   - just-the-docs 기본값인 "사이드바가 메인을 밀어내는" 레이아웃을
+     "사이드바가 콘텐츠 위에 오버레이되는" 팝업 드로어 방식으로 교체.
+   - 사이드바 너비는 15.5rem ($nav-width-md) 으로 고정.
+   - 열기/닫기는 transform: translateX() 로 처리 (width: 0 방식 ❌).
+   - 토글 버튼(label)은 사이드바 오른쪽 테두리에 항상 붙어 있음.
+   ============================================================ */
+
+
+/* ============================================================
+   §1. 체크박스 숨김
+       display: none 대신 opacity + pointer-events 사용:
+       일부 브라우저에서 display:none이 :checked 감지를 방해함
+   ============================================================ */
+.sidebar-checkbox,
+.right-sidebar-checkbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+
+/* ============================================================
+   §2. just-the-docs 기본 레이아웃 오버라이드 (데스크톱 전용)
+       - .side-bar + .main 의 margin-left 를 제거하여
+         사이드바가 콘텐츠를 "밀어내지" 않도록 합니다.
+       - 대신 .main 은 항상 전체 너비를 사용합니다.
+   ============================================================ */
+@media (min-width: 0rem) {    /* 데스크톱 진입점 무조건 활성화 */
+  .side-bar + .main {
+    margin-left: 0 !important;
+  }
+
+  /*
+   * [801~1047px 수정]
+   * layout.scss L61~64: .main { max-width: $content-width (800px) }
+   * mq(md) 부터 max-width: 800px 가 적용되는데, margin-left: 0 과 함께
+   * 사용하면 콘텐츠가 800px 에서 멈추고 나머지 공간은 빈 상태가 됩니다.
+   * 오버레이 사이드바 방식에서는 .main 이 뷰포트 전체를 채워야
+   * 사이드바 닫혔을 때(및 열렸을 때) 가독성이 유지됩니다.
+   */
+  .main {
+    max-width: 100% !important;
+  }
+}
+
+@media (min-width: 0rem) {  /* mq(lg) 무조건 활성화 */
+  .side-bar + .main {
+    margin-left: 0 !important;
+  }
+
+  .main {
+    max-width: 100% !important;
+  }
+}
+
+
+/* ============================================================
+   §2-b. 사이드바 내부 정렬 수정
+       [문제 원인 1] layout.scss mq(md) 에서 .side-bar 에
+         align-items: flex-end 가 선언되어 있음.
+         원래는 대형 화면에서 사이드바가 가변폭일 때 콘텐츠를
+         오른쪽으로 밀어 붙이기 위한 의도적 설계였지만,
+         지금은 고정폭(15.5rem) 오버레이이므로 왼쪽 정렬이 맞음.
+       [문제 원인 2] layout.scss mq(lg) 에서
+         .site-nav, .site-header, .site-footer { width: $nav-width (16.5rem) }
+         사이드바(15.5rem)보다 1rem 넓어서 콘텐츠가 삐져나옴.
+         width: 100% 로 덮어써서 사이드바 폭 안에 맞춤.
+   ============================================================ */
+@media (min-width: 0rem) {   /* mq(md) 무조건 활성화 */
+  .side-bar {
+    align-items: flex-start !important;  /* flex-end → flex-start: 좌측 정렬 */
+  }
+}
+
+@media (min-width: 0rem) { /* mq(lg) 무조건 활성화 */
+  /*
+   * [핵심 수정] layout.scss L18~21:
+   *   width: calc((100% - #{$nav-width + $content-width}) / 2 + #{$nav-width})
+   *   min-width: $nav-width
+   * 이 공식이 화면 가로폭에 비례하여 사이드바를 함께 늘려버립니다.
+   * 오버레이 팝업 방식에서는 폭이 고정이어야 하므로 $nav-width-md(15.5rem)로 고정합니다.
+   */
+  .side-bar {
+    width: 15.5rem !important;  /* calc() 가변폭 → 고정폭 15.5rem ($nav-width-md) */
+    min-width: 0 !important;    /* min-width: $nav-width(16.5rem) 무력화 */
+  }
+
+  .site-nav,
+  .site-header,
+  .site-footer {
+    width: 100% !important;  /* $nav-width(16.5rem) → 사이드바 폭 100% */
+  }
+}
+
+
+/* ============================================================
+   §3. 사이드바 오버레이 스타일
+       - position: fixed 는 just-the-docs 가 이미 선언 (mq(md))
+       - z-index 를 높여 콘텐츠 위에 올라오도록
+       - 기본(열림) 상태: translateX(0) — 화면 안에 보임
+       - 닫힘 상태: translateX(-100%) — 왼쪽으로 슬라이드 아웃
+       - box-shadow: 오른쪽에 그림자로 깊이감 표현
+   ============================================================ */
+@media (min-width: 0rem) {
+  .side-bar {
+    z-index: 200 !important;                  /* 콘텐츠(.main z-index: 0) 위로 */
+    transform: translateX(0);
+    transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+    box-shadow: 3px 0 12px rgba(0, 0, 0, 0.15);
+    /* 너비는 just-the-docs 기본값 15.5rem ($nav-width-md) 유지 */
+  }
+}
+
+
+/* ============================================================
+   §4. 토글 버튼 (.sidebar-toggle label)
+       - position: fixed — body 최하단에 배치했으므로 transform 트랩 없음
+       - 열림 상태: 사이드바 오른쪽 테두리에 바짝 붙임
+         left = $nav-width-md (15.5rem) + 약간의 여유
+       - 버튼 크기: 폭 2rem, 높이 4rem — 클릭하기 쉬운 크기
+       - 배경: 사이드바 색상($sidebar-color)과 어울리는 반투명 톤
+   ============================================================ */
+.sidebar-toggle {
+  position: fixed;
+  left: 15.5rem;           /* 사이드바 오른쪽 끝에 정확히 붙임 */
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 201;            /* 사이드바(200)보다 1 위 — 항상 클릭 가능 */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 4rem;
+
+  background-color: #F2F2F2;   /* just-the-docs 사이드바 배경($grey-lt-000)과 통일 */
+  border: 1px solid #eeebee;   /* $grey-lt-100 */
+  border-left: none;           /* 사이드바와 이어지는 느낌 */
+  border-radius: 0 6px 6px 0;
+  box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
+
+  font-family: monospace;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: #44434d;              /* $grey-dk-200 */
+  cursor: pointer;
+
+  /* 위치 이동도 transition 적용 — 사이드바 슬라이드와 동기화 */
+  transition: left 0.3s ease, background-color 0.2s ease;
+
+  &:hover {
+    background-color: #eeebee; /* $grey-lt-100 */
+    color: #27262b;            /* $grey-dk-300 */
+  }
+
+  /* 모바일(max-width: 0rem) - 비활성화하여 항상 노출 */
+  @media (max-width: 0rem) {
+    display: none;
+  }
+}
+
+
+/* ============================================================
+   §5. 체크박스 ON(닫힘) 상태 — 사이드바 슬라이드 아웃
+       ~ 형제 결합자: #sidebar-checkbox 가 .side-bar, .sidebar-toggle 의
+         앞쪽 형제(body 직계 자식)이므로 정상 작동합니다.
+   ============================================================ */
+#sidebar-checkbox:checked {
+
+  /* 5-1. 사이드바: 왼쪽으로 슬라이드 아웃 */
+  ~ .side-bar {
+    transform: translateX(-100%) !important;
+    box-shadow: none !important;
+  }
+
+  /* 5-2. 토글 버튼: 사이드바가 사라졌으므로 왼쪽 끝으로 이동 */
+  ~ .sidebar-toggle {
+    left: 0;               /* 화면 왼쪽 끝으로 이동 */
+    border-left: 1px solid #eeebee;  /* 닫혔을 땐 왼쪽 테두리 복원 */
+    border-radius: 0 6px 6px 0;
+
+    /* 아이콘: [<] → [>] */
+    .toggle-icon {
+      font-size: 0;
+
+      &::before {
+        content: "▶";
+        font-size: 0.8rem;
+      }
+    }
+  }
+}
+
+
+/* ============================================================
+   §6. 사이드바 열림(기본) 상태 아이콘 명시
+       — 상태 복귀 시 [>] 가 잔류하지 않도록 방어
+   ============================================================ */
+#sidebar-checkbox:not(:checked) ~ .sidebar-toggle {
+  .toggle-icon {
+    font-size: 0.8rem;  /* "◀" 텍스트 그대로 보임 */
+
+    &::before {
+      content: "";        /* 추가 pseudo 콘텐츠 제거 */
+    }
+  }
+}
+
+
+/* ============================================================
+   §7. Stage 3 — 우측 참조 이미지 패널 (right_section 플러그인)
+   ============================================================
+   설계 원칙 (사용자 제안):
+   - 우측 패널은 main-content "내부"에만 존재하는 고정폭 컬럼.
+   - 초기 좌측 사이드바가 본문을 밀어내듯, 이미지 패널도
+     본문 텍스트 공간을 일부 차지하며 오른쪽에 위치함.
+   - flex row 레이아웃: [텍스트 (flex:1)] [이미지 패널 (고정폭)]
+   - position: sticky 로 스크롤 동기화.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   7-1. content-row: flex 행 컨테이너
+        [주의] overflow 절대 금지 → sticky 트랩 발생
+   ---------------------------------------------------------- */
+.content-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;   /* 각 열이 독립적으로 높이를 가짐 */
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+
+  /* sticky trap 방지: overflow 속성 일절 금지 */
+  overflow: visible;
+}
+
+/* ----------------------------------------------------------
+   7-2. text-content: 좌측 텍스트 열 (가변폭)
+   ---------------------------------------------------------- */
+.text-content {
+  flex: 1 1 0;    /* 남은 공간 전부 차지 */
+  min-width: 0;   /* flex item이 넘치지 않도록 방어 */
+
+  /* 내부 요소들이 정상적으로 블록 흐름을 갖도록 */
+  > * {
+    max-width: 100%;
+  }
+}
+
+/* ----------------------------------------------------------
+   7-3. right-reference-sidebar: 우측 이미지 열 (고정폭)
+        - 데스크톱: 보임 / 모바일: JS가 이미지를 본문 안으로 옮긴 뒤 숨김
+   ---------------------------------------------------------- */
+.right-reference-sidebar {
+  flex: 0 0 var(--right-sidebar-width, 260px);   /* 절대 늘어나거나 줄지 않는 고정폭 */
+  width: var(--right-sidebar-width, 260px);
+  max-width: var(--right-sidebar-width, 260px);
+
+  /* align-self: stretch (기본값) 유지 →
+     부모(.content-row)와 높이를 맞춰야 sticky가 스크롤 끝까지 작동 */
+  align-self: stretch;
+
+  /* 모바일(max-width: 0rem) - 비활성화하여 패널 유지 */
+  @media (max-width: 0rem) {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------
+   7-4. sticky-wrapper: 이미지를 뷰포트 상단에 고정
+        [핵심 조건] 부모(.right-reference-sidebar)가 충분한 높이를
+        가져야 sticky가 스크롤 구간 내내 작동합니다.
+        (align-self: stretch 로 보장)
+   ---------------------------------------------------------- */
+.sticky-wrapper {
+  position: sticky;
+  top: 1.5rem;    /* 뷰포트 상단에서 1.5rem 아래에 고정 */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  & > * + * {
+    margin-top: 1rem; /* 사이드바 내부 요소 간 세로 여백 */
+  }
+}
+
+.sidebar-custom-content {
+  padding: 0 1rem; /* 좌우 패딩 추가로 보더와 밀착 방지 */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ----------------------------------------------------------
+   7-5. 참조 이미지 크기 방어
+        [계획서 §4] 이미지가 뷰포트보다 길면 아랫부분을 볼 수 없음.
+        max-height: 80vh 로 반드시 화면 안에 수용.
+   ---------------------------------------------------------- */
+.right-reference-sidebar .sticky-wrapper img {
+  width: 100%;
+  height: auto !important; /* 비율 유지하며 높이 자동 계산 */
+  max-width: var(--right-sidebar-width, 260px);
+  max-height: 80vh;
+  object-fit: contain;    /* 비율 유지하며 박스 안에 맞춤 */
+  object-position: center center;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  /* 이미지 로딩 중 레이아웃 깨짐 방지 */
+  display: block;
+  transition: object-position 0.3s ease !important;
+}
+
+/* ----------------------------------------------------------
+   7-6. 모바일 인라인 이미지 (JS가 .text-content 안으로 이동시킨 후)
+        - 이미지가 본문 사이에 자연스럽게 녹아들도록 스타일 지정
+   ---------------------------------------------------------- */
+.text-content img.reference-img {
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 1.5rem auto;    /* 위아래 여백, 가운데 정렬 */
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ============================================================
+   §8. 우측 사이드바 토글 버튼 (기본형)
+       - 임계값 초과일 때는 display: none 상태
+       - 임계값 이하가 되면 default.html 의 미디어 쿼리가 display: flex 로 변경
+   ============================================================ */
+.right-sidebar-toggle {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  top: auto;
+  transform: none;
+  z-index: 201;            /* 우측 사이드바(100)보다 위에 배치 */
+
+  display: none;           /* 데스크톱(기본 상태)에서는 숨김 */
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+
+  background-color: #ffffff;
+  border: 1px solid #e1dfe3;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+  color: #44434d;
+  cursor: pointer;
+
+  /* 위치 이동도 transition 적용 — 사이드바 슬라이드와 동기화 */
+  transition: right 0.3s ease, bottom 0.3s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    background-color: #F2F2F2;
+    color: #27262b;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  .toggle-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-doc {
+    display: block;
+  }
+
+  .icon-close {
+    display: none;
+  }
+}
+
+/* ============================================================
+   §9. 연재 블로그 신규 확장 기능 스타일링 (시리즈, 프로그레스 바 등)
+   ============================================================ */
+
+/* 9-1. 스크롤 진행률 표시바 (Scroll Progress Bar) */
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(to right, #3258A6, #82A8D9); /* Sleek blue gradient */
+  z-index: 9999;
+  transition: width 0.1s ease-out;
+}
+
+/* 9-2. 시리즈 내비게이터 카드 (Series Navigator) */
+.series-navigator-card {
+  margin: 3rem 0 2rem 0;
+  padding: 1.5rem;
+  background-color: #F2F2F2;
+  border: 1px solid #eeebee;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(50, 88, 166, 0.05);
+
+  .series-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+
+    .series-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: #3258A6;
+      border-radius: 20px;
+      margin-right: 0.8rem;
+      line-height: 1.2;
+    }
+
+    .series-title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #27262b;
+    }
+  }
+
+  .series-desc {
+    margin: 0 0 1rem 0;
+    font-size: 0.9rem;
+    color: #63626e;
+  }
+
+  .series-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .series-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    margin-bottom: 0.4rem;
+    font-size: 0.92rem;
+    transition: background-color 0.2s ease;
+
+    &::before {
+      content: none !important;
+    }
+
+    &:hover {
+      background-color: rgba(130, 168, 217, 0.15);
+    }
+
+    .series-num {
+      font-weight: 600;
+      color: #3258A6;
+      margin-right: 0.8rem;
+      min-width: 3.5rem;
+      display: inline-block;
+    }
+
+    .series-item-title {
+      color: #27262b;
+      font-weight: 600;
+    }
+
+    .series-item-link {
+      color: #44434d;
+      text-decoration: none;
+      &:hover {
+        color: #3258A6;
+        text-decoration: underline;
+      }
+    }
+
+    &.current-item {
+      background-color: rgba(130, 168, 217, 0.25);
+      border-left: 3px solid #3258A6;
+      padding-left: calc(0.8rem - 3px);
+
+      &:hover {
+        background-color: rgba(130, 168, 217, 0.25);
+      }
+    }
+
+    .current-badge {
+      display: inline-block;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #3258A6;
+      background-color: #ffffff;
+      border: 1px solid #3258A6;
+      border-radius: 4px;
+      margin-left: 0.8rem;
+      line-height: 1.2;
+    }
+  }
+}
+
+/* 9-3. 뉴스레터 이메일 구독 섹션 카드 */
+.newsletter-section-card {
+  display: flex;
+  align-items: flex-start;
+  margin: 2.5rem 0;
+  padding: 2rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e1dfe3;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .newsletter-icon {
+    font-size: 2.2rem;
+    margin-right: 1.5rem;
+    line-height: 1;
+  }
+
+  .newsletter-content {
+    flex: 1;
+
+    .newsletter-title {
+      margin: 0 0 0.4rem 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #27262b;
+    }
+
+    .newsletter-desc {
+      margin: 0 0 1.2rem 0;
+      font-size: 0.9rem;
+      color: #63626e;
+      line-height: 1.5;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 0.8rem;
+      max-width: 500px;
+    }
+
+    .newsletter-input {
+      flex: 1;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.9rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background-color: #ffffff;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: #3258A6;
+        box-shadow: 0 0 0 3px rgba(50, 88, 166, 0.15);
+      }
+    }
+
+    .newsletter-btn {
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #ffffff;
+      background-color: #3258A6;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #2E4186;
+      }
+    }
+  }
+
+  @media (max-width: 576px) {
+    flex-direction: column;
+    padding: 1.5rem;
+
+    .newsletter-icon {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+      width: 100%;
+      gap: 0.6rem;
+    }
+
+    .newsletter-btn {
+      width: 100%;
+    }
+  }
+}
+
+/* 9-4. Giscus 댓글 영역 */
+.comments-section-wrapper {
+  margin: 4rem 0 2rem 0;
+  padding-top: 2rem;
+  border-top: 1px dashed #e1dfe3;
+
+  .comments-header {
+    margin-bottom: 1.5rem;
+
+    h4 {
+      margin: 0 0 0.4rem 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #27262b;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #63626e;
+    }
+  }
+}
+
+/* 9-5. 시리즈 허브 그리드 및 카드 */
+.series-hub-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.series-hub-card {
+  background-color: #ffffff;
+  border: 1px solid #e1dfe3;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(50, 88, 166, 0.08);
+  }
+
+  .series-hub-card-header {
+    background-color: #fbfbfd;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eeebee;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .series-hub-badge {
+      display: inline-block;
+      align-self: flex-start;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #ffffff;
+      background-color: #3258A6;
+      border-radius: 4px;
+      line-height: 1.2;
+    }
+
+    .series-hub-title {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #27262b;
+    }
+
+    .series-hub-count {
+      font-size: 0.85rem;
+      color: #3258A6;
+      font-weight: 600;
+    }
+  }
+
+  .series-hub-card-body {
+    padding: 1.5rem;
+  }
+
+  .series-hub-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .series-hub-item {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f8f9fa;
+    font-size: 0.92rem;
+
+    &::before {
+      content: none !important;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .series-hub-num {
+      font-weight: 600;
+      color: #3258A6;
+      margin-right: 0.8rem;
+      min-width: 3.5rem;
+      display: inline-block;
+    }
+
+    .series-hub-item-link {
+      color: #44434d;
+      text-decoration: none;
+      &:hover {
+        color: #3258A6;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+/* 9-6. 코드 예시 복사 버튼 개선 */
+div.highlighter-rouge,
+div.listingblock > div.content,
+figure.highlight {
+  > button {
+    width: 2rem !important;
+    height: 2rem !important;
+    padding: 0.4rem !important;
+    top: 0.4rem !important;
+    right: 0.4rem !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid #e1dfe3 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+    cursor: pointer !important;
+    transition: opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease !important;
+
+    svg {
+      width: 1.2rem !important;
+      height: 1.2rem !important;
+      fill: #63626e !important;
+    }
+
+    &:hover {
+      background-color: #ffffff !important;
+      border-color: #3258A6 !important;
+      svg {
+        fill: #3258A6 !important;
+      }
+    }
+  }
+}

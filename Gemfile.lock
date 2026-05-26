@@ -65,6 +65,7 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.6.2)
+    domain_name (0.6.20240107)
     dumb_delegator (1.1.0)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
@@ -77,8 +78,23 @@ GEM
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
+    faraday-cookie_jar (0.0.8)
+      faraday (>= 0.8.0)
+      http-cookie (>= 1.0.0)
+    faraday-encoding (0.0.6)
+      faraday
+    faraday-follow_redirects (0.5.0)
+      faraday (>= 1, < 3)
+    faraday-gzip (3.1.0)
+      faraday (>= 2.0, < 3)
+      zlib (~> 3.0)
+    faraday-http-cache (2.7.0)
+      faraday (>= 0.8)
     faraday-net_http (3.4.2)
       net-http (~> 0.5)
+    faraday-retry (2.4.0)
+      faraday (~> 2.0)
+    fastimage (2.4.1)
     ffi (1.17.4-arm64-darwin)
     ffi (1.17.4-x64-mingw-ucrt)
     ffi (1.17.4-x86_64-linux-gnu)
@@ -107,6 +123,8 @@ GEM
       typhoeus (~> 1.3)
       yell (~> 2.0)
       zeitwerk (~> 2.5)
+    http-cookie (1.1.6)
+      domain_name (~> 0.5)
     http_parser.rb (0.8.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
@@ -136,6 +154,9 @@ GEM
       octokit (>= 4, < 7, != 4.4.0)
     jekyll-include-cache (0.2.1)
       jekyll (>= 3.7, < 5.0)
+    jekyll-linkpreview (0.7.0)
+      jekyll (>= 3.5, < 5.0)
+      metainspector (~> 5.9)
     jekyll-sass-converter (3.1.0)
       sass-embedded (~> 1.75)
     jekyll-seo-tag (2.8.0)
@@ -160,8 +181,21 @@ GEM
     logger (1.7.0)
     matrix (0.4.3)
     mercenary (0.4.0)
+    metainspector (5.17.0)
+      addressable (~> 2.8.4)
+      faraday (~> 2.5)
+      faraday-cookie_jar (~> 0.0)
+      faraday-encoding (~> 0.0)
+      faraday-follow_redirects (~> 0.3)
+      faraday-gzip (>= 0.1, < 4.0)
+      faraday-http-cache (~> 2.5)
+      faraday-retry (~> 2.0)
+      fastimage (~> 2.2)
+      nesty (~> 1.0)
+      nokogiri (~> 1.19.0)
     metrics (0.15.0)
     mini_mime (1.1.5)
+    nesty (1.0.2)
     net-http (0.9.1)
       uri (>= 0.11.1)
     nokogiri (1.19.3-arm64-darwin)
@@ -248,6 +282,7 @@ GEM
       nokogiri (~> 1.8)
     yell (2.2.2)
     zeitwerk (2.7.5)
+    zlib (3.2.3)
 
 PLATFORMS
   arm64-darwin
@@ -265,6 +300,7 @@ DEPENDENCIES
   html-proofer (~> 5.2)
   jekyll-github-metadata (>= 2.15)
   jekyll-include-cache
+  jekyll-linkpreview
   jekyll-sitemap
   just-the-docs!
   rack

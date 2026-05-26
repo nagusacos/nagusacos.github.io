@@ -1,1 +1,1 @@
-Search {{site.title}}
+{% assign current_lang = page.lang | default: site.lang | default: 'ko' %}{% if current_lang == 'ko' %}{{site.title}} 검색{% else %}Search {{site.title}}{% endif %}

@@ -13,11 +13,12 @@
 # you will see them accessed via {{ site.title }}, {{ site.github_repo }}, and so on.
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
-title: Just the Docs
-description: A Jekyll theme for documentation
+title: nagusacos
+description: 수학, 기계학습 이론 학습용 시리즈 연재 블로그
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://just-the-docs.com" # the base hostname & protocol for your site, e.g. http://example.com
-repository: just-the-docs/just-the-docs # for github-metadata
+url: "https://nagusacos.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+repository: nagusacos/nagusacos.github.io # for github-metadata
+lang: ko # Default site language
 
 permalink: pretty
 
@@ -112,12 +113,21 @@ mermaid:
 heading_anchors: true
 
 # Aux links for the upper right navigation
-aux_links:
-  "Just the Docs on GitHub":
-    - "https://github.com/just-the-docs/just-the-docs"
+# aux_links:
+#   "Just the Docs on GitHub":
+#     - "https://github.com/just-the-docs/just-the-docs"
 
 # Makes Aux links open in a new tab. Default is false
-aux_links_new_tab: false
+# aux_links_new_tab: false
+
+# Width of the right reference sidebar (e.g. 260px, 18rem, etc.)
+right_sidebar_width: 500px
+
+# Threshold width of the text content below which the right sidebar collapses (e.g. 500px, 30rem, etc.)
+right_sidebar_collapse_width: 500px
+
+# Width of the peeking part of the right reference sidebar when closed/deactivated (e.g. 30px, 2rem, etc.)
+right_sidebar_peek_width: 10px
 
 # Enable or disable the side/mobile menu globally
 # Nav menu can also be selectively enabled or disabled using page variables or the minimal layout
@@ -129,8 +139,8 @@ nav_sort: case_sensitive # Capital letters sorted before lowercase
 
 # External navigation links
 nav_external_links:
-  - title: Just the Docs on GitHub
-    url: https://github.com/just-the-docs/just-the-docs
+  - title: nagusacos on GitHub
+    url: https://github.com/nagusacos
 
 # Show navigation error report
 nav_error_report: true # default is false/nil.
@@ -146,7 +156,7 @@ liquid:
 back_to_top: true
 back_to_top_text: "Back to top"
 
-footer_content: 'Copyright &copy; 2017-2026 Patrick Marsceill and Just the Docs contributors. Distributed by an <a href="https://github.com/just-the-docs/just-the-docs/tree/main/LICENSE.txt">MIT license.</a> <a href="https://www.netlify.com/">This site is powered by Netlify.</a>'
+footer_content: 'Copyright &copy; 2026 nagusacos. All rights reserved.'
 
 # Footer last edited timestamp
 last_edit_timestamp: true # show or hide edit time - page must have `last_modified_date` defined in the frontmatter
@@ -155,7 +165,7 @@ last_edit_time_format: "%b %e %Y at %I:%M %p" # uses ruby's time format: https:/
 # Footer "Edit this page on GitHub" link text
 gh_edit_link: true # show or hide edit this page link
 gh_edit_link_text: "Edit this page on GitHub"
-gh_edit_repository: "https://github.com/just-the-docs/just-the-docs" # the github URL for your repo
+gh_edit_repository: "https://github.com/nagusacos/nagusacos.github.io" # the github URL for your repo
 gh_edit_branch: "main" # the branch that your docs is served from
 # gh_edit_source: docs # the source that your files originate from
 gh_edit_view_mode: "tree" # "tree" or "edit" if you want the user to jump into the editor immediately
@@ -212,3 +222,21 @@ compress_html:
 sass:
   quiet_deps: true # https://github.com/just-the-docs/just-the-docs/issues/1541
   silence_deprecations: ['import'] # https://github.com/just-the-docs/just-the-docs/issues/1607
+
+# Giscus Comments Settings (Github Discussions backend)
+giscus:
+  repo: "nagusacos/nagusacos.github.io"
+  repo_id: "R_kgD..." # Replace with actual GitHub Repository ID
+  category: "Announcements" # Name of Discussion Category
+  category_id: "DIC_..." # Replace with actual Category ID
+  mapping: "pathname"
+  strict: "0"
+  reactions_enabled: "1"
+  emit_metadata: "0"
+  input_position: "bottom"
+  theme: "light"
+  lang: "ko"
+
+# Newsletter Subscription Form Settings
+newsletter:
+  endpoint: "https://buttondown.email/api/emails/embed-subscribe/nagusacos" # Replace with actual subscription endpoint
