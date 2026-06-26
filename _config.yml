@@ -226,9 +226,9 @@ sass:
 # Giscus Comments Settings (Github Discussions backend)
 giscus:
   repo: "nagusacos/nagusacos.github.io"
-  repo_id: "R_kgD..." # Replace with actual GitHub Repository ID
+  repo_id: "R_kgDOQQ6Y7w" # Replace with actual GitHub Repository ID
   category: "Announcements" # Name of Discussion Category
-  category_id: "DIC_..." # Replace with actual Category ID
+  category_id: "DIC_kwDOQQ6Y784C_8zY" # Replace with actual Category ID
   mapping: "pathname"
   strict: "0"
   reactions_enabled: "1"
